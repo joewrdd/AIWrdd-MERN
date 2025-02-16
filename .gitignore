@@ -1,0 +1,28 @@
+# Node.js dependencies
+client/node_modules/
+server/node_modules/
+client/package-lock.json/
+server/package-lock.json/
+node_modules/
+package-lock.json
+yarn.lock
+
+# EsLint
+client/eslint.config.mjs/
+
+# Environment variables
+.env
+client/.env
+server/.env
+
+# Logs & system files
+logs/
+*.log
+.DS_Store
+
+# Build and dist folders
+client/build/
+server/dist/
+
+# VS Code settings
+.vscode/

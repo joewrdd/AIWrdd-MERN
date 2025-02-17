@@ -235,5 +235,3 @@ module.exports = {
   handleStripeWebhook,
   updateSubscription,
 };
-
-// Cron: In Node.js cron is a module that allows us to schedule task to be executed at specific times or intervals

@@ -120,3 +120,7 @@ app.use(errorHandler);
 
 //----- Server Start -----
 app.listen(PORT, console.log(`Server is running on port ${PORT}`));
+
+// Notes:
+// 1) WebHook Listener: stripe listen --forward-to localhost:3008/api/stripe/webhook
+// 2) Cron: In Node.js cron is a module that allows us to schedule task to be executed at specific times or intervals

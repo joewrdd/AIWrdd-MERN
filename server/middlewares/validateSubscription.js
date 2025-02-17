@@ -1,3 +1,4 @@
+//----- Subscription Validation -----
 const validateSubscription = (req, res, next) => {
   const validPlans = ["Free", "Basic", "Premium"];
   const { subscription } = req.body;

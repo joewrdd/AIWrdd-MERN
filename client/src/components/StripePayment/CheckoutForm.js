@@ -64,7 +64,7 @@ const CheckoutForm = () => {
         throw new Error("No client secret received");
       }
 
-      // Update the return_url to include payment intent ID
+      // Update The "return_url" To Include Payment Intent-ID
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
         clientSecret: result.clientSecret,

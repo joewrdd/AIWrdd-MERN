@@ -91,7 +91,6 @@ cron.schedule("0 0 1 * * *", async () => {
 });
 
 //----- Middlewares -----
-// Add this condition to handle webhook route differently
 app.use((req, res, next) => {
   if (req.originalUrl === "/api/stripe/webhook") {
     next();
@@ -100,14 +99,14 @@ app.use((req, res, next) => {
   }
 });
 
-// Move the CORS configuration here
+//----- CORS Configuration -----
 const corsOptions = {
   origin: "http://localhost:4001",
   credentials: true,
 };
 app.use(cors(corsOptions));
 
-// Configure cookie parser
+//----- Configure Cookie Parser -----
 app.use(cookieParser());
 
 //----- Routes -----

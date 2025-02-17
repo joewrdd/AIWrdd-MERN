@@ -41,7 +41,6 @@ export const authAPI = async () => {
       }
     );
 
-    // Debug logging
     console.log("Auth check response:", response.data);
 
     if (!response.data) {

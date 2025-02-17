@@ -19,10 +19,8 @@ const checkAPIRequestLimit = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // Determine request limit based on subscription
+  //----- Request Limit Per Subscription Plan -----
   let requestLimit = 0;
-
-  // Check if the user is on a trial period
   if (user?.trialActive) {
     requestLimit = user?.monthlyRequestCount;
   }

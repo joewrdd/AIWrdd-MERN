@@ -21,9 +21,9 @@ const handleStripePayment = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Create payment intent with explicit subscription data
+    // Creating Payment Intent With Explicit Subscription Data
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Number(amount) * 100, // Convert to cents
+      amount: Number(amount) * 100,
       currency: "usd",
       metadata: {
         userId: user?._id?.toString(),
@@ -102,7 +102,7 @@ const handleFreeSubscription = asyncHandler(async (req, res) => {
   }
 });
 
-// Add this new webhook handler function
+//----- Handles Stripe WebHook Event -----
 const handleStripeWebhook = asyncHandler(async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
@@ -113,7 +113,7 @@ const handleStripeWebhook = asyncHandler(async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    // Handle successful payment
+    // Handles Successful Payment
     if (event.type === "payment_intent.succeeded") {
       const paymentIntent = event.data.object;
 
@@ -149,7 +149,7 @@ const handleStripeWebhook = asyncHandler(async (req, res) => {
         monthlyRequestCount: subscriptionPlan === "Basic" ? 50 : 100,
       });
 
-      // Update user based on subscription plan
+      // Updates User Subscription Plan
       const updateData = {
         subscription: subscriptionPlan,
         trialPeriod: 0,
@@ -176,14 +176,14 @@ const updateSubscription = asyncHandler(async (req, res) => {
   const user = req.user;
 
   try {
-    // Retrieve payment intent from Stripe
+    // Retrieve Payment Intent From Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
 
     if (paymentIntent.status === "succeeded") {
       const metadata = paymentIntent.metadata;
       const subscriptionPlan = metadata.subscriptionPlan;
 
-      // Create payment record
+      // Create Payment Record
       const newPayment = await PaymentModel.create({
         user: user._id,
         email: user.email,
@@ -195,7 +195,7 @@ const updateSubscription = asyncHandler(async (req, res) => {
         monthlyRequestCount: subscriptionPlan === "Basic" ? 50 : 100,
       });
 
-      // Update user
+      // Update User Data
       const updateData = {
         subscription: subscriptionPlan,
         trialPeriod: 0,

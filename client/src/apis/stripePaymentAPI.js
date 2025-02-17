@@ -47,10 +47,9 @@ export const verifyPayment = async (paymentId) => {
       }
     );
 
-    // If webhook isn't available, update the user here
+    //----- Update User => Unavailable Hook ------
     if (response.data.paymentStatus === "succeeded") {
       try {
-        // Make a direct update request
         await axios.post(
           `${API_URL}/api/stripe/update-subscription`,
           { paymentId },

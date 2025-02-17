@@ -5,27 +5,13 @@ import { profileAPI } from "../../apis/usersAPI";
 import StatusMessage from "../Alert/StatusMessage";
 
 const Dashboard = () => {
-  //----- Get User Profile -----
   const { isLoading, isError, data, error, refetch } = useQuery({
     queryFn: profileAPI,
     queryKey: ["profile"],
     refetchOnWindowFocus: true,
-    refetchInterval: 2000, // Refetch every 2 seconds until data is updated
-    refetchIntervalInBackground: true,
-    staleTime: 0, // Consider data always stale
+    staleTime: 0,
+    cacheTime: 0,
   });
-
-  // Debug logging
-  useEffect(() => {
-    console.log("Dashboard data updated:", {
-      subscription: data?.user?.subscription,
-      monthlyRequestCount: data?.user?.monthlyRequestCount,
-      payments: data?.user?.payments,
-    });
-  }, [data]);
-
-  // Remove console.logs or make them more specific
-  console.log("Dashboard user data:", data?.user);
 
   //----- Loading If User Exists -----
   if (isLoading) {
@@ -43,6 +29,7 @@ const Dashboard = () => {
   }
 
   const user = data?.user;
+
   if (!user) {
     return <StatusMessage type="error" message="No user data available" />;
   }
@@ -213,12 +200,14 @@ const Dashboard = () => {
                   Premium: 100 Monthly Requests
                 </p>
               )}
-              <Link
-                to="/plans"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[#301934] via-[#432752] to-[#5a3470] hover:shadow-lg hover:opacity-95 transition-all duration-300"
-              >
-                Upgrade Plan
-              </Link>
+              {user?.subscription !== "Premium" && (
+                <Link
+                  to="/plans"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[#301934] via-[#432752] to-[#5a3470] hover:shadow-lg hover:opacity-95 transition-all duration-300"
+                >
+                  Upgrade Plan
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -251,25 +240,48 @@ const Dashboard = () => {
               <p className="text-gray-600 mb-2">
                 Trial Status:{" "}
                 <span className="font-semibold text-gray-800">
-                  {user?.trialActive ? (
-                    <span className="text-green-500"> Active </span>
+                  {user?.payments?.some(
+                    (payment) => payment.status === "Succeeded"
+                  ) ? (
+                    <span className="text-green-500">
+                      Upgraded To {user?.subscription}
+                    </span>
                   ) : (
-                    <span className="text-red-600">Inactive </span>
+                    <span
+                      className={
+                        user?.trialActive ? "text-green-500" : "text-red-600"
+                      }
+                    >
+                      {user?.trialActive ? "Active" : "Inactive"}
+                    </span>
                   )}
                 </span>
               </p>
-              <p className="text-gray-600 mb-4">
-                Expires on:{" "}
-                <span className="font-semibold text-gray-800">
-                  {new Date(user?.trialExpires).toDateString()}
-                </span>
-              </p>
-              <Link
-                to="/plans"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[#301934] via-[#432752] to-[#5a3470] hover:shadow-lg hover:opacity-95 transition-all duration-300"
-              >
-                Upgrade to Premium
-              </Link>
+              {user?.payments?.some(
+                (payment) => payment.status === "Succeeded"
+              ) ? (
+                <p className="text-gray-600 mb-4">
+                  Next Billing Date:{" "}
+                  <span className="font-semibold text-gray-800">
+                    {new Date(user?.nextBillingDate).toDateString()}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-gray-600 mb-4">
+                  Trial Expires on:{" "}
+                  <span className="font-semibold text-gray-800">
+                    {new Date(user?.trialExpires).toDateString()}
+                  </span>
+                </p>
+              )}
+              {user?.subscription !== "Premium" && (
+                <Link
+                  to="/plans"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[#301934] via-[#432752] to-[#5a3470] hover:shadow-lg hover:opacity-95 transition-all duration-300"
+                >
+                  Upgrade to Premium
+                </Link>
+              )}
             </div>
           </div>
         </div>

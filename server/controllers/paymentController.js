@@ -51,77 +51,10 @@ const verifyPayment = asyncHandler(async (req, res) => {
   const { paymentId } = req.params;
   try {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
-    console.log(paymentIntent);
-    if (paymentIntent.status === "succeeded") {
-      // Get The MetaData Information
-      const metadata = paymentIntent?.metadata;
-      const subscriptionPlan = metadata?.subscriptionPlan;
-      const userEmail = metadata?.userEmail;
-      const userId = metadata?.userId;
-
-      // Find User
-      const userFound = await User.findById(userId);
-      if (!userFound) {
-        return res.status(404).json({
-          status: "false",
-          message: "User not found",
-        });
-      }
-      // Get The Payment Details
-      const amount = paymentIntent?.amount / 100;
-      const currency = paymentIntent?.currency;
-      const paymentId = paymentIntent?.id;
-
-      // Create The Payment History
-      const newPayment = await Payment.create({
-        user: userId,
-        email: userEmail,
-        subscriptionPlan,
-        amount,
-        currency,
-        status: "success",
-        reference: paymentId,
-      });
-
-      // Check For The Subscription Plan
-
-      if (subscriptionPlan === "Basic") {
-        // Update The User For Basic Access
-        const updatedUser = await User.findByIdAndUpdate(userId, {
-          subscriptionPlan,
-          trialPeriod: 0,
-          nextBillingDate: calculateNextBillingDate(),
-          apiRequestCount: 0,
-          monthlyRequestCount: 50,
-          subscriptionPlan: "Basic",
-          $addToSet: { payments: newPayment?._id },
-        });
-
-        res.json({
-          status: true,
-          message: "Payment verified, user updated",
-          updatedUser,
-        });
-      }
-      if (subscriptionPlan === "Premium") {
-        // Update The User For Premium Access
-        const updatedUser = await User.findByIdAndUpdate(userId, {
-          subscriptionPlan,
-          trialPeriod: 0,
-          nextBillingDate: calculateNextBillingDate(),
-          apiRequestCount: 0,
-          monthlyRequestCount: 100,
-          subscriptionPlan: "Premium",
-          $addToSet: { payments: newPayment?._id },
-        });
-
-        res.json({
-          status: true,
-          message: "Payment verified, user updated",
-          updatedUser,
-        });
-      }
-    }
+    res.json({
+      status: true,
+      paymentStatus: paymentIntent.status,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -169,10 +102,138 @@ const handleFreeSubscription = asyncHandler(async (req, res) => {
   }
 });
 
+// Add this new webhook handler function
+const handleStripeWebhook = asyncHandler(async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+
+  try {
+    const event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+
+    // Handle successful payment
+    if (event.type === "payment_intent.succeeded") {
+      const paymentIntent = event.data.object;
+
+      // Get The MetaData Information
+      const metadata = paymentIntent?.metadata;
+      const subscriptionPlan = metadata?.subscriptionPlan;
+      const userEmail = metadata?.userEmail;
+      const userId = metadata?.userId;
+
+      // Find User
+      const userFound = await UserModel.findById(userId);
+      if (!userFound) {
+        return res.status(404).json({
+          status: "false",
+          message: "User not found",
+        });
+      }
+
+      // Get The Payment Details
+      const amount = paymentIntent?.amount / 100;
+      const currency = paymentIntent?.currency;
+      const paymentId = paymentIntent?.id;
+
+      // Create The Payment History
+      const newPayment = await PaymentModel.create({
+        user: userId,
+        email: userEmail,
+        subscriptionPlan,
+        amount,
+        currency,
+        status: "Succeeded",
+        reference: paymentId,
+        monthlyRequestCount: subscriptionPlan === "Basic" ? 50 : 100,
+      });
+
+      // Update user based on subscription plan
+      const updateData = {
+        subscription: subscriptionPlan,
+        trialPeriod: 0,
+        trialActive: false,
+        nextBillingDate: calculateNextBillingDate(),
+        apiRequestCount: 0,
+        monthlyRequestCount: subscriptionPlan === "Basic" ? 50 : 100,
+        $addToSet: { payments: newPayment?._id },
+      };
+
+      await UserModel.findByIdAndUpdate(userId, updateData);
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    console.error("Webhook error:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+
+//----- Update Subscription -----
+const updateSubscription = asyncHandler(async (req, res) => {
+  const { paymentId } = req.body;
+  const user = req.user;
+
+  try {
+    // Retrieve payment intent from Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
+
+    if (paymentIntent.status === "succeeded") {
+      const metadata = paymentIntent.metadata;
+      const subscriptionPlan = metadata.subscriptionPlan;
+
+      // Create payment record
+      const newPayment = await PaymentModel.create({
+        user: user._id,
+        email: user.email,
+        subscriptionPlan,
+        amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency,
+        status: "Succeeded",
+        reference: paymentId,
+        monthlyRequestCount: subscriptionPlan === "Basic" ? 50 : 100,
+      });
+
+      // Update user
+      const updateData = {
+        subscription: subscriptionPlan,
+        trialPeriod: 0,
+        trialActive: false,
+        nextBillingDate: calculateNextBillingDate(),
+        apiRequestCount: 0,
+        monthlyRequestCount: subscriptionPlan === "Basic" ? 50 : 100,
+        $addToSet: { payments: newPayment._id },
+      };
+
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        user._id,
+        updateData,
+        { new: true }
+      );
+
+      res.json({
+        status: "success",
+        message: "Subscription updated",
+        user: updatedUser,
+      });
+    } else {
+      res
+        .status(400)
+        .json({ status: "error", message: "Payment not successful" });
+    }
+  } catch (error) {
+    console.error("Update subscription error:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+});
+
 module.exports = {
   handleStripePayment,
   handleFreeSubscription,
   verifyPayment,
+  handleStripeWebhook,
+  updateSubscription,
 };
 
 // Cron: In Node.js cron is a module that allows us to schedule task to be executed at specific times or intervals

@@ -91,9 +91,16 @@ cron.schedule("0 0 1 * * *", async () => {
 });
 
 //----- Middlewares -----
-app.use(express.json());
+// Add this condition to handle webhook route differently
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/stripe/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
-// CORS configuration
+// Move the CORS configuration here
 const corsOptions = {
   origin: "http://localhost:4001",
   credentials: true,

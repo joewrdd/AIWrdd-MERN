@@ -38,6 +38,7 @@ export const verifyPayment = async (paymentId) => {
   }
 
   try {
+    console.log("Verifying payment:", paymentId);
     const response = await axios.post(
       `${API_URL}/api/stripe/verify-payment/${paymentId}`,
       {},
@@ -45,12 +46,24 @@ export const verifyPayment = async (paymentId) => {
         withCredentials: true,
       }
     );
+
+    // If webhook isn't available, update the user here
+    if (response.data.paymentStatus === "succeeded") {
+      try {
+        // Make a direct update request
+        await axios.post(
+          `${API_URL}/api/stripe/update-subscription`,
+          { paymentId },
+          { withCredentials: true }
+        );
+      } catch (updateError) {
+        console.error("Failed to update subscription:", updateError);
+      }
+    }
+
     return response?.data;
   } catch (error) {
-    console.error(
-      "Verification Error: ",
-      error.response?.data || error.message
-    );
+    console.error("Verification Error:", error.response?.data || error.message);
     throw error;
   }
 };

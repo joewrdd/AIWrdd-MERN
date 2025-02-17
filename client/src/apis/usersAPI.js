@@ -69,8 +69,30 @@ export const logoutAPI = async () => {
 
 //----- Dashboard -----
 export const profileAPI = async () => {
-  const response = await axios.get("http://localhost:3008/api/users/profile", {
-    withCredentials: true,
-  });
-  return response?.data;
+  try {
+    console.log("Fetching fresh profile data...");
+    const response = await axios.get(
+      "http://localhost:3008/api/users/profile",
+      {
+        withCredentials: true,
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
+    console.log("Profile API response:", {
+      subscription: response.data?.user?.subscriptionPlan,
+      payments: response.data?.user?.payments?.length,
+      lastPayment:
+        response.data?.user?.payments?.[
+          response.data?.user?.payments?.length - 1
+        ],
+    });
+    return response?.data;
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    throw error;
+  }
 };

@@ -11,7 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const openAIController = asyncHandler(async (req, res) => {
   const { prompt } = req.body;
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -31,9 +31,13 @@ const openAIController = asyncHandler(async (req, res) => {
     res.status(200).json({ message: userResponse });
   } catch (error) {
     console.error("Gemini API Error:", error);
+    console.error(
+      "Error Details:",
+      error.response ? error.response.data : error.message
+    );
     res.status(500).json({
       error: "Error generating content",
-      details: error.message,
+      details: error.response ? error.response.data : error.message,
     });
   }
 });

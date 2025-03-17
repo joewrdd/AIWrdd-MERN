@@ -1,6 +1,6 @@
 # WrddAI Content Generator
 
-A powerful AI-driven content generation platform built with the MERN stack (MongoDB, Express.js, React.js, Node.js) that helps users create high-quality, engaging content with an intuitive user interface.
+A powerful AI-driven content generation platform built with the MERN stack (MongoDB, Express.js, React.js, Node.js) that helps users create high-quality, engaging content with an intuitive user interface & a sleek easy payment getaway.
 
 ## Features
 

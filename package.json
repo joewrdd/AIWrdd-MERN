@@ -1,7 +1,7 @@
 {
   "name": "aiwrdd-mern",
   "version": "1.0.0",
-  "description": "AI Word Game using MERN Stack",
+  "description": "AIWardMERN Stack",
   "private": true,
   "scripts": {
     "start": "cd server && npm start",
@@ -9,6 +9,6 @@
     "install-client": "cd client && npm install",
     "build-client": "cd client && npm run build",
     "postinstall": "npm run install-server && npm run install-client",
-    "build": "npm run build-client"
+    "build": "npm run build-client && npm run build-server"
   }
 }

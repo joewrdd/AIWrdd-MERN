@@ -2,8 +2,11 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cron = require("node-cron");
 const cors = require("cors");
+const path = require("path");
 const env = require("dotenv");
-env.config();
+
+env.config({ path: path.resolve(__dirname, "../.env") });
+
 require("./utils/database")();
 
 const { errorHandler } = require("./middlewares/errorMiddleware");

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "build": "mkdir -p dist && cp -r *.js config middlewares routes controllers utils models dist/"
   },
   "author": "",
   "license": "ISC",

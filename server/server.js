@@ -118,6 +118,17 @@ app.use("/api/openai", openAIRouter);
 app.use("/api/stripe", paymentRouter);
 app.use("/api/history", historyRouter);
 
+//----- Serve Static Assets In Production -----
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("public"));
+
+  app.get("*", (req, res) => {
+    if (!req.path.startsWith("/api")) {
+      res.sendFile(path.resolve(__dirname, "public", "index.html"));
+    }
+  });
+}
+
 //----- Error Handler -----
 app.use(errorHandler);
 

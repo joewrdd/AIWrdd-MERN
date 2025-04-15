@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
-    "build": "mkdir -p dist && cp -r *.js config middlewares routes controllers utils models dist/"
+    "build": "mkdir -p dist && cp -r *.js config middlewares routes controllers utils models dist/ && cp package.json dist/"
   },
   "author": "",
   "license": "ISC",

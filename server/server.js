@@ -5,7 +5,11 @@ const cors = require("cors");
 const path = require("path");
 const env = require("dotenv");
 
-env.config({ path: path.resolve(__dirname, "../.env") });
+//----- Environment Variables -----
+if (process.env.NODE_ENV === "production") {
+} else {
+  env.config({ path: path.resolve(__dirname, "../.env") });
+}
 
 require("./utils/database")();
 
@@ -104,7 +108,10 @@ app.use((req, res, next) => {
 
 //----- CORS Configuration -----
 const corsOptions = {
-  origin: "http://localhost:4001",
+  origin:
+    process.env.NODE_ENV === "production"
+      ? [process.env.NETLIFY_URL, "https://wrddai.netlify.app"]
+      : "http://localhost:4001",
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -120,11 +127,16 @@ app.use("/api/history", historyRouter);
 
 //----- Serve Static Assets In Production -----
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("public"));
+  const staticPath = path.join(__dirname, "public");
+
+  app.use(express.static(staticPath));
 
   app.get("*", (req, res) => {
     if (!req.path.startsWith("/api")) {
-      res.sendFile(path.resolve(__dirname, "public", "index.html"));
+      const indexPath = path.join(__dirname, "public", "index.html");
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ message: "API Endpoint Not Found..." });
     }
   });
 }

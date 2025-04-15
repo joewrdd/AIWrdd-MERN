@@ -24,7 +24,7 @@ const Login = () => {
     if (isAuthenticated) {
       navigate("/dashboard");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   //----- Mutation -----
   const mutation = useMutation({ mutationFn: loginAPI });
@@ -51,7 +51,7 @@ const Login = () => {
     if (mutation.isSuccess) {
       login();
     }
-  }, [mutation.isSuccess]);
+  }, [mutation.isSuccess, login]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">

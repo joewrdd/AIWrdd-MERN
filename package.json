@@ -10,5 +10,8 @@
     "build-client": "cd client && npm run build",
     "postinstall": "npm run install-server && npm run install-client",
     "build": "npm run build-client"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.14.5"
   }
 }

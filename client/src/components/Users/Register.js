@@ -17,7 +17,7 @@ const validationSchema = Yup.object({
 });
 
 const Registration = () => {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   //----- ReDirect Logged In User -----
@@ -25,7 +25,7 @@ const Registration = () => {
     if (isAuthenticated) {
       navigate("/dashboard");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   //----- Mutation -----
   const mutation = useMutation({ mutationFn: regesterAPI });
@@ -39,10 +39,10 @@ const Registration = () => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      //Handle The Form Submission
+      // Handle The Form Submission
       console.log("Form values", values);
       mutation.mutate(values);
-      //Simulate Successful Registration
+      // Simulate Successful Registration
       setTimeout(() => {
         navigate("/login");
       }, 1000);

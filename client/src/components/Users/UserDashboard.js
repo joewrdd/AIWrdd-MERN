@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import React, { useEffect } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { profileAPI } from "../../apis/usersAPI";
 import StatusMessage from "../Alert/StatusMessage";
 
 const Dashboard = () => {
-  const { isLoading, isError, data, error, refetch } = useQuery({
+  const { isLoading, isError, data, error } = useQuery({
     queryFn: profileAPI,
     queryKey: ["profile"],
     refetchOnWindowFocus: true,

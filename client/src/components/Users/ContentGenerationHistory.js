@@ -10,7 +10,6 @@ import {
 import { Link } from "react-router-dom";
 import { profileAPI } from "../../apis/usersAPI";
 import {
-  viewContentAPI,
   updateContentAPI,
   deleteContentAPI,
 } from "../../apis/contentHistoryAPI";

@@ -2,7 +2,6 @@ import { useState } from "react";
 import React from "react";
 import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { FaCreativeCommonsShare } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import textLogo from "../../assets/WRDD.png";
 
@@ -73,14 +72,14 @@ export default function PublicNavbar() {
             <div className="fixed inset-0 z-50" />
             <Dialog.Panel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-gray-900 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10">
               <div className="flex items-center justify-between">
-                <a href="#" className="-m-1.5 p-1.5">
+                <button className="-m-1.5 p-1.5" onClick={() => {}}>
                   <span className="sr-only">Your Company</span>
                   <img
                     className="h-8 w-auto"
                     src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
                     alt=""
                   />
-                </a>
+                </button>
                 <button
                   type="button"
                   className="-m-2.5 rounded-md p-2.5 text-gray-400"
